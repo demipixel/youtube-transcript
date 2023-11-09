@@ -1,3 +1,5 @@
+import * as Axios from 'axios';
+
 const RE_YOUTUBE =
   /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
 const USER_AGENT =
@@ -49,6 +51,7 @@ export class YoutubeTranscriptNotAvailableLanguageError extends YoutubeTranscrip
 
 export interface TranscriptConfig {
   lang?: string;
+  AxiosClient?: Axios.AxiosInstance;
 }
 export interface TranscriptResponse {
   text: string;
@@ -70,8 +73,9 @@ export class YoutubeTranscript {
     videoId: string,
     config?: TranscriptConfig
   ): Promise<TranscriptResponse[]> {
+    const axiosClient = (config?.AxiosClient ?? Axios.default);
     const identifier = this.retrieveVideoId(videoId);
-    const videoPageResponse = await fetch(
+    const videoPageResponse = await axiosClient.get<string>(
       `https://www.youtube.com/watch?v=${identifier}`,
       {
         headers: {
@@ -80,7 +84,7 @@ export class YoutubeTranscript {
         },
       }
     );
-    const videoPageBody = await videoPageResponse.text();
+    const videoPageBody = await videoPageResponse.data;
 
     const splittedHTML = videoPageBody.split('"captions":');
 
@@ -133,16 +137,17 @@ export class YoutubeTranscript {
         : captions.captionTracks[0]
     ).baseUrl;
 
-    const transcriptResponse = await fetch(transcriptURL, {
+    const transcriptResponse = await axiosClient.get<string>(transcriptURL, {
       headers: {
         ...(config?.lang && { 'Accept-Language': config.lang }),
         'User-Agent': USER_AGENT,
       },
+      validateStatus: () => true,
     });
-    if (!transcriptResponse.ok) {
+    if (![200,201].includes(transcriptResponse.status)) {
       throw new YoutubeTranscriptNotAvailableError(videoId);
     }
-    const transcriptBody = await transcriptResponse.text();
+    const transcriptBody = await transcriptResponse.data;
     const results = [...transcriptBody.matchAll(RE_XML_TRANSCRIPT)];
     return results.map((result) => ({
       text: result[3],
