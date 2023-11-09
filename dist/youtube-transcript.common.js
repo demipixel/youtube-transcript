@@ -1,4 +1,4 @@
-'use strict';Object.defineProperty(exports,'__esModule',{value:true});var Axios=require('axios');function _interopDefaultLegacy(e){return e&&typeof e==='object'&&'default'in e?e:{'default':e}}var Axios__default=/*#__PURE__*/_interopDefaultLegacy(Axios);/*! *****************************************************************************
+'use strict';var Axios=require('axios');function _interopNamespaceDefault(e){var n=Object.create(null);if(e){Object.keys(e).forEach(function(k){if(k!=='default'){var d=Object.getOwnPropertyDescriptor(e,k);Object.defineProperty(n,k,d.get?d:{enumerable:true,get:function(){return e[k]}});}})}n.default=e;return Object.freeze(n)}var Axios__namespace=/*#__PURE__*/_interopNamespaceDefault(Axios);/******************************************************************************
 Copyright (c) Microsoft Corporation.
 
 Permission to use, copy, modify, and/or distribute this software for any
@@ -12,7 +12,7 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
-/* global Reflect, Promise */
+/* global Reflect, Promise, SuppressedError, Symbol */
 
 var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf ||
@@ -22,6 +22,8 @@ var extendStatics = function(d, b) {
 };
 
 function __extends(d, b) {
+    if (typeof b !== "function" && b !== null)
+        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
     extendStatics(d, b);
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -43,7 +45,7 @@ function __generator(thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -63,11 +65,16 @@ function __generator(thisArg, body) {
         } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
-}var RE_YOUTUBE = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+}
+
+typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};var RE_YOUTUBE = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
 var YoutubeTranscriptError = /** @class */ (function (_super) {
     __extends(YoutubeTranscriptError, _super);
     function YoutubeTranscriptError(message) {
-        return _super.call(this, "[YoutubeTranscript] \uD83D\uDEA8 " + message) || this;
+        return _super.call(this, "[YoutubeTranscript] \uD83D\uDEA8 ".concat(message)) || this;
     }
     return YoutubeTranscriptError;
 }(Error));
@@ -89,12 +96,12 @@ var YoutubeTranscript = /** @class */ (function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        axiosClient = ((_a = config === null || config === void 0 ? void 0 : config.AxiosClient) !== null && _a !== void 0 ? _a : Axios__default['default']);
+                        axiosClient = ((_a = config === null || config === void 0 ? void 0 : config.AxiosClient) !== null && _a !== void 0 ? _a : Axios__namespace.default);
                         identifier = this.retrieveVideoId(videoId);
                         _b.label = 1;
                     case 1:
                         _b.trys.push([1, 5, , 6]);
-                        return [4 /*yield*/, axiosClient("https://www.youtube.com/watch?v=" + identifier)];
+                        return [4 /*yield*/, axiosClient("https://www.youtube.com/watch?v=".concat(identifier))];
                     case 2:
                         videoPageBody = (_b.sent()).data;
                         innerTubeApiKey = videoPageBody
@@ -103,7 +110,7 @@ var YoutubeTranscript = /** @class */ (function () {
                             .split('"')[0];
                         if (!(innerTubeApiKey && innerTubeApiKey.length > 0)) return [3 /*break*/, 4];
                         return [4 /*yield*/, axiosClient({
-                                url: "https://www.youtube.com/youtubei/v1/get_transcript?key=" + innerTubeApiKey,
+                                url: "https://www.youtube.com/youtubei/v1/get_transcript?key=".concat(innerTubeApiKey),
                                 method: 'POST',
                                 data: this.generateRequest(videoPageBody.toString(), config),
                             })];
