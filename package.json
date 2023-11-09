@@ -2,9 +2,9 @@
   "name": "youtube-transcript",
   "version": "1.2.1",
   "description": "Fetch transcript from a youtube video",
-  "main": "dist/youtube-transcript.esm.js",
-  "browser": "dist/youtube-transcript.esm.js",
-  "module": "dist/youtube-transcript.esm.js",
+  "main": "dist/youtube-transcript.js",
+  "browser": "dist/youtube-transcript.js",
+  "module": "dist/youtube-transcript.js",
   "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
