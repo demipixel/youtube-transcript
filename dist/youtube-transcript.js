@@ -90,36 +90,42 @@ var YoutubeTranscript = /** @class */ (function () {
     }
     /**
      * Fetch transcript from YTB Video
-     * @param videoId Video url or video identifier
+     * @param input Video id, url, or the video page body
      * @param config Get transcript in another country and language ISO
      */
-    YoutubeTranscript.fetchTranscript = function (videoId, config) {
+    YoutubeTranscript.fetchTranscript = function (input, config) {
         var _a;
         return __awaiter(this, void 0, void 0, function () {
-            var axiosClient, identifier, videoPageBody, innerTubeApiKey, body, transcripts, e_1;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var axiosClient, identifier, videoPageBody, _b, innerTubeApiKey, body, transcripts, e_1;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         axiosClient = ((_a = config === null || config === void 0 ? void 0 : config.AxiosClient) !== null && _a !== void 0 ? _a : Axios.default);
-                        identifier = this.retrieveVideoId(videoId);
-                        _b.label = 1;
+                        identifier = 'videoIdOrUrl' in input ? this.retrieveVideoId(input.videoIdOrUrl) : '';
+                        _c.label = 1;
                     case 1:
-                        _b.trys.push([1, 5, , 6]);
-                        return [4 /*yield*/, axiosClient("https://www.youtube.com/watch?v=".concat(identifier))];
-                    case 2:
-                        videoPageBody = (_b.sent()).data;
+                        _c.trys.push([1, 7, , 8]);
+                        if (!('videoPageBody' in input)) return [3 /*break*/, 2];
+                        _b = input.videoPageBody;
+                        return [3 /*break*/, 4];
+                    case 2: return [4 /*yield*/, axiosClient("https://www.youtube.com/watch?v=".concat(identifier))];
+                    case 3:
+                        _b = (_c.sent()).data;
+                        _c.label = 4;
+                    case 4:
+                        videoPageBody = _b;
                         innerTubeApiKey = videoPageBody
                             .toString()
                             .split('"INNERTUBE_API_KEY":"')[1]
                             .split('"')[0];
-                        if (!(innerTubeApiKey && innerTubeApiKey.length > 0)) return [3 /*break*/, 4];
+                        if (!(innerTubeApiKey && innerTubeApiKey.length > 0)) return [3 /*break*/, 6];
                         return [4 /*yield*/, axiosClient({
                                 url: "https://www.youtube.com/youtubei/v1/get_transcript?key=".concat(innerTubeApiKey),
                                 method: 'POST',
                                 data: this.generateRequest(videoPageBody.toString(), config),
                             })];
-                    case 3:
-                        body = (_b.sent()).data;
+                    case 5:
+                        body = (_c.sent()).data;
                         if (body.responseContext) {
                             if (!body.actions) {
                                 throw new Error('Transcript is disabled on this video');
@@ -135,12 +141,12 @@ var YoutubeTranscript = /** @class */ (function () {
                                         .startOffsetMs),
                                 }); })];
                         }
-                        _b.label = 4;
-                    case 4: return [3 /*break*/, 6];
-                    case 5:
-                        e_1 = _b.sent();
+                        _c.label = 6;
+                    case 6: return [3 /*break*/, 8];
+                    case 7:
+                        e_1 = _c.sent();
                         throw new YoutubeTranscriptError(e_1);
-                    case 6: return [2 /*return*/];
+                    case 8: return [2 /*return*/];
                 }
             });
         });

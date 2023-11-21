@@ -18,10 +18,14 @@ export interface TranscriptResponse {
 export declare class YoutubeTranscript {
     /**
      * Fetch transcript from YTB Video
-     * @param videoId Video url or video identifier
+     * @param input Video id, url, or the video page body
      * @param config Get transcript in another country and language ISO
      */
-    static fetchTranscript(videoId: string, config?: TranscriptConfig): Promise<TranscriptResponse[]>;
+    static fetchTranscript(input: {
+        videoIdOrUrl: string;
+    } | {
+        videoPageBody: string;
+    }, config?: TranscriptConfig): Promise<TranscriptResponse[]>;
     /**
      * Generate tracking params for YTB API
      * @param page

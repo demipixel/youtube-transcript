@@ -66,25 +66,24 @@ export interface TranscriptResponse {
 export class YoutubeTranscript {
   /**
    * Fetch transcript from YTB Video
-   * @param videoId Video url or video identifier
-   * @param config Get transcript in a specific language ISO
+   * @param input Video id, url, or the video page body
+   * @param config Get transcript in another country and language ISO
    */
   public static async fetchTranscript(
-    videoId: string,
+    input: { videoIdOrUrl: string; videoPageBody?: string; },
     config?: TranscriptConfig
   ): Promise<TranscriptResponse[]> {
     const axiosClient = (config?.AxiosClient ?? Axios.default);
-    const identifier = this.retrieveVideoId(videoId);
-    const videoPageResponse = await axiosClient.get<string>(
-      `https://www.youtube.com/watch?v=${identifier}`,
+    const videoId = 'videoIdOrUrl' in input ? this.retrieveVideoId(input.videoIdOrUrl) : ''
+    const videoPageBody = input.videoPageBody ?? (await axiosClient.get<string>(
+      `https://www.youtube.com/watch?v=${videoId}`,
       {
         headers: {
           ...(config?.lang && { 'Accept-Language': config.lang }),
           'User-Agent': USER_AGENT,
         },
       }
-    );
-    const videoPageBody = await videoPageResponse.data;
+    )).data;
 
     const splittedHTML = videoPageBody.split('"captions":');
 
