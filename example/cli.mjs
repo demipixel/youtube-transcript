@@ -1,5 +1,5 @@
-import { YoutubeTranscript } from 'youtube-transcript';
+import { YoutubeTranscript } from '../dist/youtube-transcript.js';
 
 (async () => {
-    console.log(await YoutubeTranscript.fetchTranscript(process.argv[2]));
+    console.log(await YoutubeTranscript.fetchTranscript({ videoIdOrUrl: process.argv[2] }));
 })();
